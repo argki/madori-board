@@ -1,6 +1,15 @@
 import { useEffect, useState, type FormEvent, type TouchEvent } from 'react'
+import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
+import Row from 'react-bootstrap/Row'
+import { formatMm, mmToPx, pxToMm } from '../../lib/scale'
 
-/** iOS のフォーカス時スクロールを抑える（visualViewport ロックと併用） */
+const MIN_SIZE_PX = 1
+const MIN_SIZE_MM = 1
+
+/** iOS のフォーカス時スクロールを抑え、パネル内で対象欄が見えるようにする */
 function onTouchEndFocusWithoutScroll(event: TouchEvent<HTMLElement>) {
   const target = event.currentTarget
   if (
@@ -12,16 +21,8 @@ function onTouchEndFocusWithoutScroll(event: TouchEvent<HTMLElement>) {
   if (document.activeElement === target) return
   event.preventDefault()
   target.focus({ preventScroll: true })
+  target.scrollIntoView({ block: 'nearest', inline: 'nearest' })
 }
-import Alert from 'react-bootstrap/Alert'
-import Button from 'react-bootstrap/Button'
-import Col from 'react-bootstrap/Col'
-import Form from 'react-bootstrap/Form'
-import Row from 'react-bootstrap/Row'
-import { formatMm, mmToPx, pxToMm } from '../../lib/scale'
-
-const MIN_SIZE_PX = 1
-const MIN_SIZE_MM = 1
 
 type PlanSizedObject = {
   width: number
@@ -147,7 +148,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
   return (
     <Form
       onSubmit={onSubmit}
-      className="border rounded bg-white px-3 py-2"
+      className="border rounded bg-white px-2 py-2"
       aria-label="矩形の属性"
     >
       <Row className="g-2 align-items-end">
@@ -169,14 +170,10 @@ export function DimensionPanel(props: DimensionPanelProps) {
         ) : null}
         {canEditSize ? (
           <>
-            <Col
-              xs={12}
-              sm="auto"
-              className="small fw-semibold align-self-center"
-            >
+            <Col xs={12} className="small text-secondary mb-0">
               寸法（mm）
             </Col>
-            <Col xs={4} sm={2}>
+            <Col xs={mode === 'plan' ? 3 : 4} sm={2}>
               <Form.Group controlId="object-width-mm">
                 <Form.Label className="small mb-1">幅</Form.Label>
                 <Form.Control
@@ -192,7 +189,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
               </Form.Group>
             </Col>
             {mode === 'plan' ? (
-              <Col xs={4} sm={2}>
+              <Col xs={3} sm={2}>
                 <Form.Group controlId="object-depth-mm">
                   <Form.Label className="small mb-1">奥行き</Form.Label>
                   <Form.Control
@@ -208,7 +205,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
                 </Form.Group>
               </Col>
             ) : null}
-            <Col xs={4} sm={2}>
+            <Col xs={mode === 'plan' ? 3 : 4} sm={2}>
               <Form.Group controlId="object-height-mm">
                 <Form.Label className="small mb-1">高さ</Form.Label>
                 <Form.Control
@@ -223,17 +220,31 @@ export function DimensionPanel(props: DimensionPanelProps) {
                 />
               </Form.Group>
             </Col>
+            <Col xs={mode === 'plan' ? 3 : 4} sm="auto" className="ms-sm-auto">
+              <Button
+                type="submit"
+                size="sm"
+                variant="outline-primary"
+                className="w-100"
+              >
+                適用
+              </Button>
+            </Col>
           </>
         ) : (
-          <Col xs={12} md className="small text-secondary align-self-center">
-            寸法（mm）は縮尺校正のあとで入力できます。
-          </Col>
+          <>
+            <Col xs={12} md className="small text-secondary align-self-center">
+              寸法（mm）は縮尺校正のあとで入力できます。
+            </Col>
+            {showLabelField ? (
+              <Col xs="auto">
+                <Button type="submit" size="sm" variant="outline-primary">
+                  適用
+                </Button>
+              </Col>
+            ) : null}
+          </>
         )}
-        <Col xs="auto">
-          <Button type="submit" size="sm" variant="outline-primary">
-            適用
-          </Button>
-        </Col>
       </Row>
     </Form>
   )
