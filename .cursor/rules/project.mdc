@@ -1,0 +1,15 @@
+---
+description: madori-board 全体の共通方針（Pages・Compose・永続化・docs 参照）
+alwaysApply: true
+---
+
+# プロジェクト共通
+
+- 間取り平面 + 立面。どちらも矩形配置と寸法入力。Undo/Redo。GitHub Pages（`base: '/madori-board/'`）
+- ローカル: Compose サービス `web` + Vite HMR。本番相当確認は Compose `preview`（`vite preview`）。nginx は置かない
+- コミット前は `docker compose run --rm web npm run format`（または `exec -T`）。ホストの Prettier 直叩きはしない
+- スタック: Vite + React + TS、Konva、Zustand + zundo、`bootstrap` + `react-bootstrap`（安定 2.x）。カスタム CSS 最小
+- バックエンドなし（初期）。データはファイル download/upload のみ。**ブラウザに保存しない**
+- 仕様・型は `@docs/architecture.md` `@docs/domain-model.md`。採用理由は `@AGENTS.md`。推測でフィールドを増やさない
+- 変更は依頼範囲に限定。git commit / push はユーザー明示時のみ
+- Cursor の使い方: `@docs/cursor/README.md`

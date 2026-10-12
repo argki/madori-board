@@ -1,0 +1,16 @@
+---
+description: 平面・立面キャンバス（矩形・寸法・縮尺校正・Undo）の責務分界
+globs: src/features/board/**,src/features/elevation/**
+alwaysApply: false
+---
+
+# ボード / キャンバス
+
+- 平面・立面とも: 背景（任意）+ 矩形の選択・ドラッグ・リサイズ・寸法（mm）入力
+- 平面の矩形ダブルクリックで立面を開く。立面でも矩形を同様に配置する
+- 縮尺: 基準線 2 点 + 実寸 mm。プリセットは AGENTS.md の調査メモに従う
+- 座標は論理ピクセルを正とし、mm 変換は `src/lib/`。表示スケール変換もここに集約
+- Undo/Redo は store 履歴で扱う。キャンバスローカルだけで完結させない
+- 立面 UI は `src/features/elevation/`。平面 Stage に立面 DOM を混在させない
+
+未決定のライブラリ名で実装を始めない。Konva 採用時は react-konva の Layer / Stage パターンに合わせる。

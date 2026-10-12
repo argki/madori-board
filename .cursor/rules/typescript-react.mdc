@@ -1,0 +1,15 @@
+---
+description: TypeScript / React のコンポーネントと状態の置き方
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript / React
+
+- 関数コンポーネント + 明示的な Props 型
+- ビジネス状態は `src/stores/`、UI 専用の一時状態はコンポーネント内
+- ドメイン型は `src/types/` に集約。コンポーネント内に匿名の巨大型を書かない
+- 新規 feature は `src/features/<name>/` に co-locate（コンポーネント + 専用 hooks）
+- エラーは握りつぶさない。ユーザー向けメッセージと開発者向け log を分ける
+
+例: ボード上の矩形は store の `BoardObject[]` を単一の正とし、Konva ノードはその投影として扱う。

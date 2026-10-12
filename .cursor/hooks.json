@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/post-edit-format.sh",
+        "matcher": "Write|Edit|TabWrite"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/before-git-commit.sh",
+        "matcher": "git\\s+commit"
+      },
+      {
+        "command": ".cursor/hooks/guard-destructive-git.sh"
+      }
+    ]
+  }
+}

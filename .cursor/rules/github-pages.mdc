@@ -1,0 +1,15 @@
+---
+description: Vite base パスと GitHub Pages デプロイ
+globs: vite.config.*,.github/**,package.json
+alwaysApply: false
+---
+
+# GitHub Pages
+
+- プロジェクトサイト URL: `https://argki.github.io/madori-board/`
+- Vite `base` は `'/madori-board/'`（末尾スラッシュ含む）
+- ビルド成果物は `dist/`。Pages は GitHub Actions からデプロイする想定
+- クライアントルーティングを使う場合は Hash Router か `404.html` フォールバックを検討
+- `public/.nojekyll` を置く（Jekyll 無効化）
+
+デプロイ手順のチェックリスト: スキル `@add-github-pages-deploy`。使い方は `@docs/cursor/README.md`
