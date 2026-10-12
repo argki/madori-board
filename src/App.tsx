@@ -261,9 +261,7 @@ function App() {
             iconClassName={
               elevationOpen ? 'bi bi-arrow-left-square' : 'bi bi-front'
             }
-            disabled={
-              calibrating || (!elevationOpen && !selectedId)
-            }
+            disabled={calibrating || (!elevationOpen && !selectedId)}
             onClick={() => {
               if (elevationOpen) {
                 onCloseElevation()

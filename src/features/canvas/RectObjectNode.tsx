@@ -36,10 +36,36 @@ function snapRotationToRightAngle(degrees: number): number {
   return snapped === 360 ? 0 : snapped
 }
 
-/** 矩形の短い辺に合わせて名称フォントを小さくする */
-function labelFontSizeForRect(width: number, height: number): number {
+const LABEL_FONT_MIN = 3
+const LABEL_FONT_MAX = 14
+const LABEL_LINE_HEIGHT = 1.15
+
+/**
+ * 名称が矩形内に収まるようフォントを決める。
+ * 短い辺の上限を守りつつ、文字数に応じて下限（3px）まで小さくする。
+ * 拡大表示すれば読める前提で、省略より表示を優先する。
+ */
+function labelFontSizeForRect(
+  width: number,
+  height: number,
+  text: string,
+): number {
   const shorter = Math.min(width, height)
-  return Math.max(8, Math.min(16, Math.floor(shorter * 0.22)))
+  const maxSize = Math.min(
+    LABEL_FONT_MAX,
+    Math.max(LABEL_FONT_MIN, Math.floor(shorter * 0.28)),
+  )
+  const padding = 2
+  const availW = Math.max(1, width - padding * 2)
+  const availH = Math.max(1, height - padding * 2)
+  const charCount = Math.max(1, Array.from(text).length)
+
+  for (let size = maxSize; size >= LABEL_FONT_MIN; size -= 1) {
+    const cols = Math.max(1, Math.floor(availW / size))
+    const rows = Math.max(1, Math.floor(availH / (size * LABEL_LINE_HEIGHT)))
+    if (cols * rows >= charCount) return size
+  }
+  return LABEL_FONT_MIN
 }
 
 type RectObjectNodeProps = {
@@ -64,8 +90,10 @@ export function RectObjectNode({
   const shapeRef = useRef<Konva.Rect>(null)
   const transformerRef = useRef<Konva.Transformer>(null)
   const label = object.label?.trim()
-  const labelFontSize = labelFontSizeForRect(object.width, object.height)
-  const labelPadding = Math.max(2, Math.round(labelFontSize * 0.35))
+  const labelFontSize = label
+    ? labelFontSizeForRect(object.width, object.height, label)
+    : LABEL_FONT_MIN
+  const labelPadding = Math.max(1, Math.round(labelFontSize * 0.2))
 
   useEffect(() => {
     const transformer = transformerRef.current
@@ -148,11 +176,12 @@ export function RectObjectNode({
           align="center"
           verticalAlign="middle"
           fontSize={labelFontSize}
+          lineHeight={LABEL_LINE_HEIGHT}
           fontFamily={LABEL_FONT_FAMILY}
           fill={appearance.labelFill ?? '#212529'}
           listening={false}
+          wrap="char"
           ellipsis
-          wrap="none"
           padding={labelPadding}
         />
       ) : null}
