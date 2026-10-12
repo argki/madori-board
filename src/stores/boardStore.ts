@@ -1,6 +1,12 @@
 import { temporal } from 'zundo'
 import { create } from 'zustand'
-import { emptyProject, type BoardObject, type Project } from '../types/project'
+import { resizeKeepingMm } from '../lib/scale'
+import {
+  emptyProject,
+  type BoardObject,
+  type Project,
+  type ScaleCalibration,
+} from '../types/project'
 
 const DEFAULT_OBJECT_WIDTH = 120
 const DEFAULT_OBJECT_HEIGHT = 80
@@ -18,6 +24,12 @@ type BoardState = {
   resetProject: () => void
   setBackground: (background: BackgroundImage) => void
   clearBackground: () => void
+  setScale: (scale: ScaleCalibration | undefined) => void
+  /** 縮尺を適用。keepMm のときは既存矩形の mm 寸法を保つようピクセルを換算する */
+  applyScale: (
+    scale: ScaleCalibration,
+    policy?: 'keepMm' | 'followDrawing',
+  ) => void
   addObject: (placement?: { x: number; y: number }) => void
   updateObject: (id: string, patch: Partial<BoardObject>) => void
   removeObject: (id: string) => void
@@ -51,6 +63,34 @@ export const useBoardStore = create<BoardState>()(
         set((state) => ({
           project: { ...state.project, background: undefined },
         })),
+      setScale: (scale) =>
+        set((state) => ({
+          project: { ...state.project, scale },
+        })),
+      applyScale: (scale, policy = 'followDrawing') =>
+        set((state) => {
+          const previousMmPerPixel = state.project.scale?.mmPerPixel
+          const objects =
+            policy === 'keepMm' &&
+            previousMmPerPixel !== undefined &&
+            previousMmPerPixel > 0
+              ? state.project.objects.map((object) => ({
+                  ...object,
+                  ...resizeKeepingMm(
+                    object,
+                    previousMmPerPixel,
+                    scale.mmPerPixel,
+                  ),
+                }))
+              : state.project.objects
+          return {
+            project: {
+              ...state.project,
+              scale,
+              objects,
+            },
+          }
+        }),
       addObject: (placement) =>
         set((state) => {
           const object = createBoardObject(placement)

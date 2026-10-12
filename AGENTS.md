@@ -102,11 +102,11 @@ src/lib/                 # ファイル I/O、座標・縮尺変換
 
 ## Cursor 設定の置き場
 
-| 種類                   | パス                                                     |
-| ---------------------- | -------------------------------------------------------- |
-| Project Rules          | `.cursor/rules/*.mdc`                                    |
-| Project Skills         | `.cursor/skills/*/SKILL.md`                              |
+| 種類                   | パス                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| Project Rules          | `.cursor/rules/*.mdc`                                                                    |
+| Project Skills         | `.cursor/skills/*/SKILL.md`                                                              |
 | Commands               | `.cursor/commands/*.md`（例: `/suggest-commit-message`, `/implement-next-commit-slice`） |
-| Hooks                  | `.cursor/hooks.json`, `.cursor/hooks/*`                  |
-| 使い方ドキュメント     | `docs/cursor/README.md`                                  |
-| コミットメッセージ規約 | `docs/commit-message.md`                                 |
+| Hooks                  | `.cursor/hooks.json`, `.cursor/hooks/*`                                                  |
+| 使い方ドキュメント     | `docs/cursor/README.md`                                                                  |
+| コミットメッセージ規約 | `docs/commit-message.md`                                                                 |

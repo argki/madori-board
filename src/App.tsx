@@ -1,4 +1,5 @@
-import { useRef, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
+import Alert from 'react-bootstrap/Alert'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Container from 'react-bootstrap/Container'
 import Navbar from 'react-bootstrap/Navbar'
@@ -6,6 +7,12 @@ import Stack from 'react-bootstrap/Stack'
 import { useStore } from 'zustand'
 import { IconToolbarButton } from './components/IconToolbarButton'
 import { BoardStage } from './features/board/BoardStage'
+import { DimensionPanel } from './features/board/DimensionPanel'
+import { ScaleCalibrationModal } from './features/board/ScaleCalibrationModal'
+import {
+  ScaleObjectPolicyModal,
+  type ScaleObjectPolicy,
+} from './features/board/ScaleObjectPolicyModal'
 import {
   downloadProjectFile,
   PROJECT_FILE_ACCEPT,
@@ -13,7 +20,9 @@ import {
   readProjectFile,
 } from './lib/projectFile'
 import { encodeImageFileAsDataUrl } from './lib/encodeImageFile'
+import { createScaleCalibration, distancePx, type Point } from './lib/scale'
 import { useBoardStore } from './stores/boardStore'
+import type { ScaleCalibration } from './types/project'
 
 function App() {
   const backgroundInputRef = useRef<HTMLInputElement>(null)
@@ -25,10 +34,78 @@ function App() {
   const project = useBoardStore((s) => s.project)
   const setProject = useBoardStore((s) => s.setProject)
   const setBackground = useBoardStore((s) => s.setBackground)
+  const applyScale = useBoardStore((s) => s.applyScale)
   const addObject = useBoardStore((s) => s.addObject)
   const selectedId = useBoardStore((s) => s.selectedId)
   const removeObject = useBoardStore((s) => s.removeObject)
   const selectObject = useBoardStore((s) => s.selectObject)
+  const updateObject = useBoardStore((s) => s.updateObject)
+
+  const [calibrating, setCalibrating] = useState(false)
+  const [draftPoints, setDraftPoints] = useState<Point[]>([])
+  const [scaleModalOpen, setScaleModalOpen] = useState(false)
+  const [pendingScale, setPendingScale] = useState<ScaleCalibration | null>(
+    null,
+  )
+
+  const selectedObject =
+    project.objects.find((object) => object.id === selectedId) ?? null
+
+  const resetCalibrationDraft = () => {
+    setCalibrating(false)
+    setDraftPoints([])
+    setScaleModalOpen(false)
+    setPendingScale(null)
+  }
+
+  const startCalibration = () => {
+    selectObject(null)
+    setDraftPoints([])
+    setScaleModalOpen(false)
+    setCalibrating(true)
+  }
+
+  const onCalibrationClick = (point: Point) => {
+    if (!calibrating || scaleModalOpen) return
+    if (draftPoints.length === 0) {
+      setDraftPoints([point])
+      return
+    }
+    if (draftPoints.length === 1) {
+      setDraftPoints([draftPoints[0], point])
+      setScaleModalOpen(true)
+    }
+  }
+
+  const onConfirmScale = (lengthMm: number) => {
+    const a = draftPoints[0]
+    const b = draftPoints[1]
+    if (!a || !b) return
+    const next = createScaleCalibration(a, b, lengthMm)
+    if (!next) {
+      window.alert('基準線の長さが短すぎるか、実寸が不正です')
+      return
+    }
+    const hasObjects = project.objects.length > 0
+    const hasPreviousScale =
+      project.scale?.mmPerPixel !== undefined && project.scale.mmPerPixel > 0
+    // 再校正かつ矩形があるときだけ、mm 保持か図面連動かを確認する
+    if (hasObjects && hasPreviousScale) {
+      setPendingScale(next)
+      setScaleModalOpen(false)
+      setCalibrating(false)
+      setDraftPoints([])
+      return
+    }
+    applyScale(next, 'followDrawing')
+    resetCalibrationDraft()
+  }
+
+  const onChooseScaleObjectPolicy = (policy: ScaleObjectPolicy) => {
+    if (!pendingScale) return
+    applyScale(pendingScale, policy)
+    resetCalibrationDraft()
+  }
 
   const onBackgroundSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -51,6 +128,7 @@ function App() {
       const next = await readProjectFile(file)
       setProject(next)
       selectObject(null)
+      resetCalibrationDraft()
       useBoardStore.temporal.getState().clear()
     } catch (error) {
       console.error(error)
@@ -69,6 +147,9 @@ function App() {
       : 'madori-board.madori.json'
     downloadProjectFile(project, filename)
   }
+
+  const pixelLength =
+    draftPoints.length === 2 ? distancePx(draftPoints[0], draftPoints[1]) : 0
 
   return (
     <div className="vh-100 d-flex flex-column">
@@ -95,14 +176,27 @@ function App() {
             onClick={() => backgroundInputRef.current?.click()}
           />
           <IconToolbarButton
+            label="縮尺を校正"
+            iconClassName="bi bi-rulers"
+            variant={calibrating ? 'primary' : 'outline-light'}
+            onClick={() => {
+              if (calibrating) {
+                resetCalibrationDraft()
+              } else {
+                startCalibration()
+              }
+            }}
+          />
+          <IconToolbarButton
             label="矩形を追加"
             iconClassName="bi bi-bounding-box"
+            disabled={calibrating}
             onClick={() => addObject()}
           />
           <IconToolbarButton
             label="矩形を削除"
             iconClassName="bi bi-trash"
-            disabled={!selectedId}
+            disabled={!selectedId || calibrating}
             onClick={() => {
               if (selectedId) removeObject(selectedId)
             }}
@@ -138,10 +232,49 @@ function App() {
 
       <Container
         fluid
-        className="flex-grow-1 d-flex flex-column py-3 overflow-hidden"
+        className="flex-grow-1 d-flex flex-column py-3 overflow-hidden gap-2"
       >
-        <BoardStage />
+        {calibrating ? (
+          <Alert variant="info" className="mb-0 py-2 small">
+            {draftPoints.length === 0
+              ? '実寸が分かる区間の一端をクリックしてください（例: ドア開口の左端）。2 点目は水平・垂直にスナップします。ホイールで拡大、ドラッグで移動できます。「縮尺を校正」をもう一度押すと中止します。'
+              : draftPoints.length === 1
+                ? '同じ区間のもう一方の端をクリックしてください。ポインタは水平または垂直に張り付きます。'
+                : '選んだ 2 点のあいだの実寸（mm）を入力してください。'}
+          </Alert>
+        ) : null}
+
+        <DimensionPanel
+          object={selectedObject}
+          mmPerPixel={project.scale?.mmPerPixel}
+          hidden={calibrating}
+          onChangeSize={(size) => {
+            if (!selectedId) return
+            updateObject(selectedId, size)
+          }}
+        />
+
+        <BoardStage
+          calibrating={calibrating}
+          draftPoints={draftPoints}
+          onCalibrationClick={onCalibrationClick}
+        />
       </Container>
+
+      <ScaleCalibrationModal
+        show={scaleModalOpen}
+        pixelLength={pixelLength}
+        initialLengthMm={project.scale?.reference?.lengthMm}
+        onCancel={resetCalibrationDraft}
+        onConfirm={onConfirmScale}
+      />
+
+      <ScaleObjectPolicyModal
+        show={pendingScale !== null}
+        objectCount={project.objects.length}
+        onCancel={resetCalibrationDraft}
+        onChoose={onChooseScaleObjectPolicy}
+      />
     </div>
   )
 }

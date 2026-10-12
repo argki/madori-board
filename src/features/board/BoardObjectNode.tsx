@@ -6,6 +6,7 @@ import type { BoardObject } from '../../types/project'
 type BoardObjectNodeProps = {
   object: BoardObject
   selected: boolean
+  listening?: boolean
   onSelect: () => void
   onChange: (patch: Partial<BoardObject>) => void
 }
@@ -13,6 +14,7 @@ type BoardObjectNodeProps = {
 export function BoardObjectNode({
   object,
   selected,
+  listening = true,
   onSelect,
   onChange,
 }: BoardObjectNodeProps) {
@@ -43,7 +45,15 @@ export function BoardObjectNode({
         fill="rgba(13, 110, 253, 0.25)"
         stroke="#0d6efd"
         strokeWidth={2}
-        draggable
+        strokeScaleEnabled={false}
+        listening={listening}
+        draggable={listening}
+        onMouseDown={(event) => {
+          event.cancelBubble = true
+        }}
+        onTouchStart={(event) => {
+          event.cancelBubble = true
+        }}
         onClick={(event) => {
           event.cancelBubble = true
           onSelect()
@@ -78,6 +88,7 @@ export function BoardObjectNode({
         <Transformer
           ref={transformerRef}
           rotateEnabled
+          strokeScaleEnabled={false}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 20 || newBox.height < 20) return oldBox
             return newBox
