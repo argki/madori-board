@@ -36,8 +36,8 @@ flowchart LR
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
 - ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定（`partialize`）
-- 導入済み: Vite + React + TS、Compose、型、store（Undo/Redo）、平面キャンバス、間取りデータ（JSON）の download / upload、平面の縮尺校正（基準線 + 実寸 mm）と選択矩形の名称・mm 寸法入力、立面（平面矩形のダブルクリックでモーダル。背景なし・校正なし。矩形配置。寸法は平面の縮尺を使用。Undo はナビ共通で、立面開閉も履歴に含めモーダルと連動）
-- 未実装: Pages 用 Actions
+- 導入済み: Vite + React + TS、Compose、型、store（Undo/Redo）、平面キャンバス、間取りデータ（JSON）の download / upload、平面の縮尺校正（基準線 + 実寸 mm）と選択矩形の名称・mm 寸法入力、立面（平面矩形のダブルクリックでモーダル。背景なし・校正なし。矩形配置。寸法は平面の縮尺を使用。Undo はナビ共通で、立面開閉も履歴に含めモーダルと連動）、GitHub Pages 用 Actions（`main` push で `dist/` をデプロイ。リポジトリ Settings → Pages → Source は GitHub Actions）
+- 未実装: なし（必須振る舞いの土台は揃った。以降は改善・拡張）
 
 ## 間取りデータファイル
 

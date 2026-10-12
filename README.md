@@ -1,8 +1,10 @@
 # madori-board
 
-間取り画像を背景に矩形を配置し、立面を編集する Web アプリ（GitHub Pages 公開予定）。
+間取り画像を背景に矩形を配置し、立面を編集する Web アプリ。公開先は [GitHub Pages](https://argki.github.io/madori-board/)（`main` への push で Actions がデプロイする）。
 
 仕様の正本: [docs/architecture.md](docs/architecture.md) / [AGENTS.md](AGENTS.md)
+
+初回だけリポジトリの Settings → Pages → Source を **GitHub Actions** にする。
 
 ## ローカル起動（Docker Compose）
 
