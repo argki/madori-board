@@ -10,7 +10,8 @@
 | objects    | BoardObject[]                 | 平面上の矩形                             |
 | viewport   | `{ scale, offsetX, offsetY }` | 表示用（任意）                           |
 
-ブラウザへの自動保存はしない。ユーザー操作によるファイル download / upload のみ。
+ブラウザへの自動保存はしない。ユーザー操作によるファイル download / upload のみ。  
+ファイル形式は JSON（版 `version: 1`）。実装は `src/lib/projectFile.ts`。
 
 ## ScaleCalibration
 

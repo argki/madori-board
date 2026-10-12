@@ -6,31 +6,68 @@ import Stack from 'react-bootstrap/Stack'
 import { useStore } from 'zustand'
 import { IconToolbarButton } from './components/IconToolbarButton'
 import { BoardStage } from './features/board/BoardStage'
-import { readFileAsDataUrl } from './lib/readFileAsDataUrl'
+import {
+  downloadProjectFile,
+  PROJECT_FILE_ACCEPT,
+  ProjectFileError,
+  readProjectFile,
+} from './lib/projectFile'
+import { encodeImageFileAsDataUrl } from './lib/encodeImageFile'
 import { useBoardStore } from './stores/boardStore'
 
 function App() {
   const backgroundInputRef = useRef<HTMLInputElement>(null)
+  const projectInputRef = useRef<HTMLInputElement>(null)
   const undo = useStore(useBoardStore.temporal, (s) => s.undo)
   const redo = useStore(useBoardStore.temporal, (s) => s.redo)
   const pastStates = useStore(useBoardStore.temporal, (s) => s.pastStates)
   const futureStates = useStore(useBoardStore.temporal, (s) => s.futureStates)
+  const project = useBoardStore((s) => s.project)
+  const setProject = useBoardStore((s) => s.setProject)
   const setBackground = useBoardStore((s) => s.setBackground)
   const addObject = useBoardStore((s) => s.addObject)
   const selectedId = useBoardStore((s) => s.selectedId)
   const removeObject = useBoardStore((s) => s.removeObject)
+  const selectObject = useBoardStore((s) => s.selectObject)
 
   const onBackgroundSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return
     try {
-      const dataUrl = await readFileAsDataUrl(file)
-      setBackground({ name: file.name, dataUrl })
+      const encoded = await encodeImageFileAsDataUrl(file)
+      setBackground({ name: encoded.name, dataUrl: encoded.dataUrl })
     } catch (error) {
       console.error(error)
       window.alert('背景の間取り図を読み込めませんでした')
     }
+  }
+
+  const onProjectSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    try {
+      const next = await readProjectFile(file)
+      setProject(next)
+      selectObject(null)
+      useBoardStore.temporal.getState().clear()
+    } catch (error) {
+      console.error(error)
+      const message =
+        error instanceof ProjectFileError
+          ? error.message
+          : '間取りデータを読み込めませんでした'
+      window.alert(message)
+    }
+  }
+
+  const onDownloadProject = () => {
+    const baseName = project.background?.name?.replace(/\.[^.]+$/, '')
+    const filename = baseName
+      ? `${baseName}.madori.json`
+      : 'madori-board.madori.json'
+    downloadProjectFile(project, filename)
   }
 
   return (
@@ -73,13 +110,13 @@ function App() {
           <IconToolbarButton
             label="保存した間取りデータを開く"
             iconClassName="bi bi-folder2-open"
-            disabled
+            onClick={() => projectInputRef.current?.click()}
           />
           <IconToolbarButton
             label="間取りデータをダウンロード"
             iconClassName="bi bi-download"
             variant="primary"
-            disabled
+            onClick={onDownloadProject}
           />
         </Stack>
       </Navbar>
@@ -90,6 +127,13 @@ function App() {
         accept="image/*"
         className="d-none"
         onChange={onBackgroundSelected}
+      />
+      <input
+        ref={projectInputRef}
+        type="file"
+        accept={PROJECT_FILE_ACCEPT}
+        className="d-none"
+        onChange={onProjectSelected}
       />
 
       <Container

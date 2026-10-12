@@ -36,13 +36,19 @@ flowchart LR
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
 - ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定（`partialize`）
-- 導入済み: Vite + React + TS、Compose（`web` / `preview`）、型、store（Undo/Redo）、平面キャンバス（背景画像・矩形の追加/選択/移動/リサイズ）
-- 未実装: 立面、寸法・縮尺校正、間取りデータの download / upload、Pages 用 Actions
+- 導入済み: Vite + React + TS、Compose、型、store（Undo/Redo）、平面キャンバス、間取りデータ（JSON）の download / upload
+- 未実装: 立面、寸法・縮尺校正、Pages 用 Actions
+
+## 間取りデータファイル
+
+- 拡張子の目安: `.madori.json`（`application/json`）
+- 内容は `Project`（`docs/domain-model.md`）。背景画像は `dataUrl` として埋め込む
+- ブラウザへの自動保存はしない。開いたあとは Undo 履歴をクリアする
 
 ## 非機能
 
 - オフライン利用可能な静的アプリ
-- 背景画像は読込時 Object URL。ファイルへ書き出すときは埋め込み方針を domain-model に従う
+- 背景の間取り図は選択時に長辺最大 2400px へ縮小し、WebP（非対応ブラウザは JPEG）へ再エンコードしてから Data URL 化する（`src/lib/encodeImageFile.ts`）。既に保存済みの JSON を開くときは再エンコードしない
 
 詳細型: `@docs/domain-model.md`  
 採用理由の要約: `@AGENTS.md` の「採用決定」
