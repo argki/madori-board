@@ -3,7 +3,6 @@ import Alert from 'react-bootstrap/Alert'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Container from 'react-bootstrap/Container'
 import Navbar from 'react-bootstrap/Navbar'
-import Stack from 'react-bootstrap/Stack'
 import { useStore } from 'zustand'
 import { IconToolbarButton } from './components/IconToolbarButton'
 import { BoardStage } from './features/board/BoardStage'
@@ -222,10 +221,12 @@ function App() {
         ref={navbarRef}
         bg="dark"
         data-bs-theme="dark"
-        className="px-3 app-navbar"
+        className="px-2 px-sm-3 py-2 app-navbar"
       >
-        <Navbar.Brand href="#home">madori-board</Navbar.Brand>
-        <Stack direction="horizontal" gap={2} className="ms-auto flex-wrap">
+        <Navbar.Brand href="#home" className="app-navbar-brand me-2 mb-0">
+          madori-board
+        </Navbar.Brand>
+        <div className="app-navbar-tools ms-auto">
           <ButtonGroup size="sm">
             <IconToolbarButton
               label="戻る"
@@ -313,7 +314,7 @@ function App() {
             variant="primary"
             onClick={onDownloadProject}
           />
-        </Stack>
+        </div>
       </Navbar>
 
       <input
