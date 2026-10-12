@@ -38,13 +38,19 @@ function App() {
   const setBackground = useBoardStore((s) => s.setBackground)
   const applyScale = useBoardStore((s) => s.applyScale)
   const addObject = useBoardStore((s) => s.addObject)
+  const addElevationObject = useBoardStore((s) => s.addElevationObject)
   const selectedId = useBoardStore((s) => s.selectedId)
+  const selectedElevationObjectId = useBoardStore(
+    (s) => s.selectedElevationObjectId,
+  )
   const removeObject = useBoardStore((s) => s.removeObject)
+  const removeElevationObject = useBoardStore((s) => s.removeElevationObject)
   const selectObject = useBoardStore((s) => s.selectObject)
   const updateObject = useBoardStore((s) => s.updateObject)
   const elevationBoardId = useBoardStore((s) => s.elevationBoardId)
   const openElevation = useBoardStore((s) => s.openElevation)
   const closeElevation = useBoardStore((s) => s.closeElevation)
+  const elevationOpen = elevationBoardId !== null
 
   const [calibrating, setCalibrating] = useState(false)
   const [draftPoints, setDraftPoints] = useState<Point[]>([])
@@ -205,12 +211,14 @@ function App() {
           <IconToolbarButton
             label="背景の間取り図を設定"
             iconClassName="bi bi-image"
+            disabled={elevationOpen}
             onClick={() => backgroundInputRef.current?.click()}
           />
           <IconToolbarButton
             label="縮尺を校正"
             iconClassName="bi bi-rulers"
             variant={calibrating ? 'primary' : 'outline-light'}
+            disabled={elevationOpen}
             onClick={() => {
               if (calibrating) {
                 resetCalibrationDraft()
@@ -220,24 +228,47 @@ function App() {
             }}
           />
           <IconToolbarButton
-            label="矩形を追加"
+            label={elevationOpen ? '立面に矩形を追加' : '矩形を追加'}
             iconClassName="bi bi-bounding-box"
             disabled={calibrating}
-            onClick={() => addObject()}
+            onClick={() => {
+              if (elevationOpen) {
+                addElevationObject()
+                return
+              }
+              addObject()
+            }}
           />
           <IconToolbarButton
-            label="矩形を削除"
+            label={elevationOpen ? '立面の矩形を削除' : '矩形を削除'}
             iconClassName="bi bi-trash"
-            disabled={!selectedId || calibrating}
+            disabled={
+              calibrating ||
+              (elevationOpen ? !selectedElevationObjectId : !selectedId)
+            }
             onClick={() => {
+              if (elevationOpen) {
+                if (selectedElevationObjectId) {
+                  removeElevationObject(selectedElevationObjectId)
+                }
+                return
+              }
               if (selectedId) removeObject(selectedId)
             }}
           />
           <IconToolbarButton
-            label="立面を編集"
-            iconClassName="bi bi-front"
-            disabled={!selectedId || calibrating}
+            label={elevationOpen ? '平面に戻る' : '立面を編集'}
+            iconClassName={
+              elevationOpen ? 'bi bi-arrow-left-square' : 'bi bi-front'
+            }
+            disabled={
+              calibrating || (!elevationOpen && !selectedId)
+            }
             onClick={() => {
+              if (elevationOpen) {
+                onCloseElevation()
+                return
+              }
               if (selectedId) onOpenElevation(selectedId)
             }}
           />
