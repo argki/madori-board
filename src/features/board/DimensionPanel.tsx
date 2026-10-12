@@ -1,4 +1,18 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type TouchEvent } from 'react'
+
+/** iOS のフォーカス時スクロールを抑える（visualViewport ロックと併用） */
+function onTouchEndFocusWithoutScroll(event: TouchEvent<HTMLElement>) {
+  const target = event.currentTarget
+  if (
+    !(target instanceof HTMLInputElement) &&
+    !(target instanceof HTMLTextAreaElement)
+  ) {
+    return
+  }
+  if (document.activeElement === target) return
+  event.preventDefault()
+  target.focus({ preventScroll: true })
+}
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import Col from 'react-bootstrap/Col'
@@ -148,6 +162,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
                 value={labelText}
                 onChange={(event) => setLabelText(event.target.value)}
                 onBlur={() => onChangeLabel?.(labelText.trim())}
+                onTouchEnd={onTouchEndFocusWithoutScroll}
               />
             </Form.Group>
           </Col>
@@ -172,6 +187,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
                   size="sm"
                   value={widthText}
                   onChange={(event) => setWidthText(event.target.value)}
+                  onTouchEnd={onTouchEndFocusWithoutScroll}
                 />
               </Form.Group>
             </Col>
@@ -187,6 +203,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
                     size="sm"
                     value={depthText}
                     onChange={(event) => setDepthText(event.target.value)}
+                    onTouchEnd={onTouchEndFocusWithoutScroll}
                   />
                 </Form.Group>
               </Col>
@@ -202,6 +219,7 @@ export function DimensionPanel(props: DimensionPanelProps) {
                   size="sm"
                   value={heightText}
                   onChange={(event) => setHeightText(event.target.value)}
+                  onTouchEnd={onTouchEndFocusWithoutScroll}
                 />
               </Form.Group>
             </Col>

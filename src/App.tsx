@@ -22,12 +22,12 @@ import {
 } from './lib/projectFile'
 import { encodeImageFileAsDataUrl } from './lib/encodeImageFile'
 import { createScaleCalibration, distancePx, type Point } from './lib/scale'
-import { useKeyboardInset } from './lib/useKeyboardInset'
+import { useVisualViewportLock } from './lib/useVisualViewportLock'
 import { useBoardStore } from './stores/boardStore'
 import type { ScaleCalibration } from './types/project'
 
 function App() {
-  useKeyboardInset()
+  useVisualViewportLock()
   const backgroundInputRef = useRef<HTMLInputElement>(null)
   const projectInputRef = useRef<HTMLInputElement>(null)
   const navbarRef = useRef<HTMLElement | null>(null)

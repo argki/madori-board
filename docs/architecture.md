@@ -35,7 +35,7 @@ flowchart LR
 ## UI / 状態
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
-- アプリ殻（`.app-shell`）は viewport に固定し、文書スクロールしない。ソフトキーボード時もナビ・図面は動かさず、寸法パネルだけ `visualViewport` に合わせてキーボード上へ上げる（`--keyboard-inset`）
+- アプリ殻（`.app-shell`）と立面モーダルは `visualViewport` の矩形に合わせる（`--vv-*`）。iOS のキーボード表示で viewport がスクロールしてもナビが画面外に残らないようにし、寸法パネルは殻の下端（キーボード直上）で図面に重ねる
 - ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体と立面開閉（`elevationBoardId`）に限定する（`partialize`）。平面編集中と立面編集中で履歴は分けず、ナビとキーボードは同じ `undo` / `redo` を呼ぶ。寸法パネルなど入力中はショートカットを奪わない。立面を開いた／閉じた操作も履歴に入るため、戻る・進むでモーダルが連動して閉じたり開いたりする
 - 導入済み:
   - Vite + React + TS、Compose、型、store（Undo/Redo）

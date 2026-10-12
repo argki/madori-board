@@ -5,19 +5,23 @@ body,
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
-/* レイアウト viewport に固定。キーボードで図面・ナビがスクロールしない */
+/*
+ * アプリ殻を visualViewport に固定する。
+ * iOS がキーボードで viewport をスクロールしても、ナビと図面が画面内に残る。
+ * 寸法パネルは殻の下端（＝キーボード直上）に載り、図面の上に重なる。
+ */
 .app-shell {
   position: fixed;
-  inset: 0;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-width, 100%);
+  height: var(--vv-height, 100dvh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  width: 100%;
-  height: 100%;
-  height: 100dvh;
-  max-height: 100dvh;
 }
 
 /* 戻る／進むを含むナビを、立面モーダルより前面に保つ */
@@ -31,23 +35,16 @@ body,
 .board-workspace {
   position: relative;
   min-height: 0;
+  flex: 1 1 auto;
 }
 
 .dimension-overlay {
   position: absolute;
   left: 0.75rem;
   right: 0.75rem;
-  /* ソフトキーボード上に載せる（--keyboard-inset は useKeyboardInset） */
-  bottom: calc(0.75rem + var(--keyboard-inset, 0px));
+  bottom: 0.75rem;
   z-index: 5;
-  max-height: min(
-    42%,
-    16rem,
-    calc(
-      100dvh - var(--keyboard-inset, 0px) - var(--app-navbar-height, 56px) -
-        2rem
-    )
-  );
+  max-height: min(42%, 16rem);
   overflow: auto;
   pointer-events: none;
   -webkit-overflow-scrolling: touch;
@@ -71,13 +68,20 @@ body,
   box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.15);
 }
 
-/* ナビ直下から全画面。戻る／進むはナビ側で共通操作する */
+/* 立面モーダルも同じ visualViewport に合わせ、キーボード後にずれ残さない */
+.elevation-modal.modal {
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: var(--vv-width, 100%);
+  height: var(--vv-height, 100dvh);
+  padding: 0;
+}
+
 .elevation-modal .elevation-modal-dialog {
   margin: 0;
   margin-top: var(--app-navbar-height, 56px);
   max-width: 100%;
   height: calc(100% - var(--app-navbar-height, 56px));
-  height: calc(100dvh - var(--app-navbar-height, 56px));
 }
 
 .elevation-modal .elevation-modal-content {
