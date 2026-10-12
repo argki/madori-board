@@ -181,6 +181,36 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
+  // 平面・立面は同一の temporal 履歴。立面の開閉も履歴に入るため、
+  // 戻る／進むでモーダルが閉じたり開いたりし得る（ナビボタンと同じ）。
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+      const mod = event.metaKey || event.ctrlKey
+      if (!mod) return
+      const key = event.key.toLowerCase()
+      if (key === 'z' && !event.shiftKey) {
+        event.preventDefault()
+        undo()
+        return
+      }
+      if (key === 'y' || (key === 'z' && event.shiftKey)) {
+        event.preventDefault()
+        redo()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [undo, redo])
+
   const pixelLength =
     draftPoints.length === 2 ? distancePx(draftPoints[0], draftPoints[1]) : 0
 
