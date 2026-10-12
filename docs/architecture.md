@@ -36,7 +36,8 @@ flowchart LR
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
 - ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定（`partialize`）
-- 導入済みの土台: Vite + React + TS、Compose（`web` / `preview`）、型（`src/types`）、store、ツールバー骨組み。キャンバス本体は未実装
+- 導入済み: Vite + React + TS、Compose（`web` / `preview`）、型、store（Undo/Redo）、平面キャンバス（背景画像・矩形の追加/選択/移動/リサイズ）
+- 未実装: 立面、寸法・縮尺校正、間取りデータの download / upload、Pages 用 Actions
 
 ## 非機能
 
