@@ -22,10 +22,12 @@ import {
 } from './lib/projectFile'
 import { encodeImageFileAsDataUrl } from './lib/encodeImageFile'
 import { createScaleCalibration, distancePx, type Point } from './lib/scale'
+import { useKeyboardInset } from './lib/useKeyboardInset'
 import { useBoardStore } from './stores/boardStore'
 import type { ScaleCalibration } from './types/project'
 
 function App() {
+  useKeyboardInset()
   const backgroundInputRef = useRef<HTMLInputElement>(null)
   const projectInputRef = useRef<HTMLInputElement>(null)
   const navbarRef = useRef<HTMLElement | null>(null)
@@ -215,7 +217,7 @@ function App() {
     draftPoints.length === 2 ? distancePx(draftPoints[0], draftPoints[1]) : 0
 
   return (
-    <div className="vh-100 d-flex flex-column">
+    <div className="app-shell">
       <Navbar
         ref={navbarRef}
         bg="dark"

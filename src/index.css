@@ -3,12 +3,28 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* レイアウト viewport に固定。キーボードで図面・ナビがスクロールしない */
+.app-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
 }
 
 /* 戻る／進むを含むナビを、立面モーダルより前面に保つ */
 .app-navbar {
   position: relative;
   z-index: 1060;
+  flex-shrink: 0;
 }
 
 /* キャンバス領域。寸法パネルを重ねても Stage サイズは変えない */
@@ -21,11 +37,20 @@ body,
   position: absolute;
   left: 0.75rem;
   right: 0.75rem;
-  bottom: 0.75rem;
+  /* ソフトキーボード上に載せる（--keyboard-inset は useKeyboardInset） */
+  bottom: calc(0.75rem + var(--keyboard-inset, 0px));
   z-index: 5;
-  max-height: min(42%, 16rem);
+  max-height: min(
+    42%,
+    16rem,
+    calc(
+      100dvh - var(--keyboard-inset, 0px) - var(--app-navbar-height, 56px) -
+        2rem
+    )
+  );
   overflow: auto;
   pointer-events: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dimension-overlay > * {
@@ -52,14 +77,17 @@ body,
   margin-top: var(--app-navbar-height, 56px);
   max-width: 100%;
   height: calc(100% - var(--app-navbar-height, 56px));
+  height: calc(100dvh - var(--app-navbar-height, 56px));
 }
 
 .elevation-modal .elevation-modal-content {
   height: 100%;
   border-radius: 0;
   border: none;
+  overflow: hidden;
 }
 
 .elevation-modal .modal-body {
   min-height: 0;
+  overflow: hidden;
 }
