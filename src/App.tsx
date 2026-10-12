@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import Alert from 'react-bootstrap/Alert'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Container from 'react-bootstrap/Container'
@@ -13,6 +13,7 @@ import {
   ScaleObjectPolicyModal,
   type ScaleObjectPolicy,
 } from './features/board/ScaleObjectPolicyModal'
+import { ElevationEditorModal } from './features/elevation/ElevationEditorModal'
 import {
   downloadProjectFile,
   PROJECT_FILE_ACCEPT,
@@ -27,6 +28,7 @@ import type { ScaleCalibration } from './types/project'
 function App() {
   const backgroundInputRef = useRef<HTMLInputElement>(null)
   const projectInputRef = useRef<HTMLInputElement>(null)
+  const navbarRef = useRef<HTMLElement | null>(null)
   const undo = useStore(useBoardStore.temporal, (s) => s.undo)
   const redo = useStore(useBoardStore.temporal, (s) => s.redo)
   const pastStates = useStore(useBoardStore.temporal, (s) => s.pastStates)
@@ -40,6 +42,9 @@ function App() {
   const removeObject = useBoardStore((s) => s.removeObject)
   const selectObject = useBoardStore((s) => s.selectObject)
   const updateObject = useBoardStore((s) => s.updateObject)
+  const elevationBoardId = useBoardStore((s) => s.elevationBoardId)
+  const openElevation = useBoardStore((s) => s.openElevation)
+  const closeElevation = useBoardStore((s) => s.closeElevation)
 
   const [calibrating, setCalibrating] = useState(false)
   const [draftPoints, setDraftPoints] = useState<Point[]>([])
@@ -48,7 +53,7 @@ function App() {
     null,
   )
 
-  const selectedObject =
+  const selectedPlanObject =
     project.objects.find((object) => object.id === selectedId) ?? null
 
   const resetCalibrationDraft = () => {
@@ -89,7 +94,6 @@ function App() {
     const hasObjects = project.objects.length > 0
     const hasPreviousScale =
       project.scale?.mmPerPixel !== undefined && project.scale.mmPerPixel > 0
-    // 再校正かつ矩形があるときだけ、mm 保持か図面連動かを確認する
     if (hasObjects && hasPreviousScale) {
       setPendingScale(next)
       setScaleModalOpen(false)
@@ -127,7 +131,6 @@ function App() {
     try {
       const next = await readProjectFile(file)
       setProject(next)
-      selectObject(null)
       resetCalibrationDraft()
       useBoardStore.temporal.getState().clear()
     } catch (error) {
@@ -148,12 +151,41 @@ function App() {
     downloadProjectFile(project, filename)
   }
 
+  const onOpenElevation = (objectId: string) => {
+    resetCalibrationDraft()
+    openElevation(objectId)
+  }
+
+  const onCloseElevation = () => {
+    closeElevation()
+  }
+
+  useEffect(() => {
+    const element = navbarRef.current
+    if (!element) return
+    const syncHeight = () => {
+      document.documentElement.style.setProperty(
+        '--app-navbar-height',
+        `${element.getBoundingClientRect().height}px`,
+      )
+    }
+    syncHeight()
+    const observer = new ResizeObserver(syncHeight)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
   const pixelLength =
     draftPoints.length === 2 ? distancePx(draftPoints[0], draftPoints[1]) : 0
 
   return (
     <div className="vh-100 d-flex flex-column">
-      <Navbar bg="dark" data-bs-theme="dark" className="px-3">
+      <Navbar
+        ref={navbarRef}
+        bg="dark"
+        data-bs-theme="dark"
+        className="px-3 app-navbar"
+      >
         <Navbar.Brand href="#home">madori-board</Navbar.Brand>
         <Stack direction="horizontal" gap={2} className="ms-auto flex-wrap">
           <ButtonGroup size="sm">
@@ -245,12 +277,18 @@ function App() {
         ) : null}
 
         <DimensionPanel
-          object={selectedObject}
+          mode="plan"
+          object={selectedPlanObject}
           mmPerPixel={project.scale?.mmPerPixel}
           hidden={calibrating}
+          showLabelField
           onChangeSize={(size) => {
             if (!selectedId) return
             updateObject(selectedId, size)
+          }}
+          onChangeLabel={(label) => {
+            if (!selectedId) return
+            updateObject(selectedId, { label: label || undefined })
           }}
         />
 
@@ -258,6 +296,7 @@ function App() {
           calibrating={calibrating}
           draftPoints={draftPoints}
           onCalibrationClick={onCalibrationClick}
+          onOpenElevation={onOpenElevation}
         />
       </Container>
 
@@ -274,6 +313,11 @@ function App() {
         objectCount={project.objects.length}
         onCancel={resetCalibrationDraft}
         onChoose={onChooseScaleObjectPolicy}
+      />
+
+      <ElevationEditorModal
+        show={elevationBoardId !== null}
+        onHide={onCloseElevation}
       />
     </div>
   )

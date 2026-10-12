@@ -55,31 +55,35 @@ export function mmToPx(mm: number, mmPerPixel: number): number {
   return mm / mmPerPixel
 }
 
-const MIN_OBJECT_SIZE_PX = 20
+/** 寸法入力・縮尺換算での最小ピクセル（mm 換算で極端に大きくならないよう小さくする） */
+const MIN_OBJECT_SIZE_PX = 1
 
 /**
  * 旧縮尺での mm 寸法を保つため、新縮尺向けにピクセル幅・高さを換算する。
  * 位置（x, y）は図面上の配置のままにする。
  */
-export function resizeKeepingMm(
-  size: { width: number; height: number },
-  previousMmPerPixel: number,
-  nextMmPerPixel: number,
-): { width: number; height: number } {
+export function resizeKeepingMm<
+  T extends { width: number; height: number; objectHeight?: number },
+>(size: T, previousMmPerPixel: number, nextMmPerPixel: number): T {
   if (!(previousMmPerPixel > 0) || !(nextMmPerPixel > 0)) {
     return size
   }
   const factor = previousMmPerPixel / nextMmPerPixel
-  return {
+  const next = {
+    ...size,
     width: Math.max(MIN_OBJECT_SIZE_PX, size.width * factor),
     height: Math.max(MIN_OBJECT_SIZE_PX, size.height * factor),
   }
+  if (typeof size.objectHeight === 'number') {
+    next.objectHeight = Math.max(MIN_OBJECT_SIZE_PX, size.objectHeight * factor)
+  }
+  return next
 }
 
-/** 表示用。小数第 1 位まで */
+/** 表示用。1 mm 単位に丸める */
 export function formatMm(mm: number): string {
   if (!Number.isFinite(mm)) return ''
-  return (Math.round(mm * 10) / 10).toFixed(1)
+  return String(Math.round(mm))
 }
 
 export const SCALE_PRESETS: ReadonlyArray<{ label: string; lengthMm: number }> =

@@ -1,4 +1,5 @@
 import {
+  DEFAULT_OBJECT_HEIGHT,
   emptyProject,
   type BoardObject,
   type ElevationObject,
@@ -118,6 +119,10 @@ function parseBoardObject(value: unknown): BoardObject {
     y,
     width,
     height,
+    objectHeight:
+      typeof value.objectHeight === 'number' && value.objectHeight > 0
+        ? value.objectHeight
+        : DEFAULT_OBJECT_HEIGHT,
     rotation: typeof value.rotation === 'number' ? value.rotation : undefined,
     label: typeof value.label === 'string' ? value.label : undefined,
     elevation: parseElevationScene(value.elevation),

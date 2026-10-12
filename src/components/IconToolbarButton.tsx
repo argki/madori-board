@@ -8,7 +8,7 @@ type IconToolbarButtonProps = {
   iconClassName: string
   onClick?: () => void
   disabled?: boolean
-  variant?: 'outline-light' | 'primary'
+  variant?: 'outline-light' | 'outline-secondary' | 'primary'
 }
 
 /** アイコンのみ。ホバーで日本語ラベルを Tooltip 表示する */

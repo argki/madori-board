@@ -4,3 +4,27 @@ body,
   height: 100%;
   margin: 0;
 }
+
+/* 戻る／進むを含むナビを、立面モーダルより前面に保つ */
+.app-navbar {
+  position: relative;
+  z-index: 1060;
+}
+
+/* ナビ直下から全画面。戻る／進むはナビ側で共通操作する */
+.elevation-modal .elevation-modal-dialog {
+  margin: 0;
+  margin-top: var(--app-navbar-height, 56px);
+  max-width: 100%;
+  height: calc(100% - var(--app-navbar-height, 56px));
+}
+
+.elevation-modal .elevation-modal-content {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+}
+
+.elevation-modal .modal-body {
+  min-height: 0;
+}
