@@ -234,6 +234,14 @@ function App() {
             }}
           />
           <IconToolbarButton
+            label="立面を編集"
+            iconClassName="bi bi-front"
+            disabled={!selectedId || calibrating}
+            onClick={() => {
+              if (selectedId) onOpenElevation(selectedId)
+            }}
+          />
+          <IconToolbarButton
             label="保存した間取りデータを開く"
             iconClassName="bi bi-folder2-open"
             onClick={() => projectInputRef.current?.click()}
@@ -267,37 +275,39 @@ function App() {
         className="flex-grow-1 d-flex flex-column py-3 overflow-hidden gap-2"
       >
         {calibrating ? (
-          <Alert variant="info" className="mb-0 py-2 small">
+          <Alert variant="info" className="mb-0 py-2 small flex-shrink-0">
             {draftPoints.length === 0
-              ? '実寸が分かる区間の一端をクリックしてください（例: ドア開口の左端）。2 点目は水平・垂直にスナップします。ホイールで拡大、ドラッグで移動できます。「縮尺を校正」をもう一度押すと中止します。'
+              ? '実寸が分かる区間の一端を指定してください（例: ドア開口の左端）。2 点目は水平・垂直にスナップします。ピンチまたは右上のボタンで拡大、ドラッグで移動できます。「縮尺を校正」をもう一度押すと中止します。'
               : draftPoints.length === 1
-                ? '同じ区間のもう一方の端をクリックしてください。ポインタは水平または垂直に張り付きます。'
+                ? '同じ区間のもう一方の端を指定してください。ポインタは水平または垂直に張り付きます。'
                 : '選んだ 2 点のあいだの実寸（mm）を入力してください。'}
           </Alert>
         ) : null}
 
-        <DimensionPanel
-          mode="plan"
-          object={selectedPlanObject}
-          mmPerPixel={project.scale?.mmPerPixel}
-          hidden={calibrating}
-          showLabelField
-          onChangeSize={(size) => {
-            if (!selectedId) return
-            updateObject(selectedId, size)
-          }}
-          onChangeLabel={(label) => {
-            if (!selectedId) return
-            updateObject(selectedId, { label: label || undefined })
-          }}
-        />
-
-        <BoardStage
-          calibrating={calibrating}
-          draftPoints={draftPoints}
-          onCalibrationClick={onCalibrationClick}
-          onOpenElevation={onOpenElevation}
-        />
+        <div className="board-workspace flex-grow-1 d-flex flex-column">
+          <BoardStage
+            calibrating={calibrating}
+            draftPoints={draftPoints}
+            onCalibrationClick={onCalibrationClick}
+          />
+          <div className="dimension-overlay">
+            <DimensionPanel
+              mode="plan"
+              object={selectedPlanObject}
+              mmPerPixel={project.scale?.mmPerPixel}
+              hidden={calibrating}
+              showLabelField
+              onChangeSize={(size) => {
+                if (!selectedId) return
+                updateObject(selectedId, size)
+              }}
+              onChangeLabel={(label) => {
+                if (!selectedId) return
+                updateObject(selectedId, { label: label || undefined })
+              }}
+            />
+          </div>
+        </div>
       </Container>
 
       <ScaleCalibrationModal

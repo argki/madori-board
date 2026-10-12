@@ -50,7 +50,6 @@ type RectObjectNodeProps = {
   appearance?: RectAppearance
   onSelect: () => void
   onChange: (patch: Partial<RectObject>) => void
-  onDblClick?: () => void
 }
 
 export function RectObjectNode({
@@ -61,7 +60,6 @@ export function RectObjectNode({
   appearance = DEFAULT_APPEARANCE,
   onSelect,
   onChange,
-  onDblClick,
 }: RectObjectNodeProps) {
   const shapeRef = useRef<Konva.Rect>(null)
   const transformerRef = useRef<Konva.Transformer>(null)
@@ -112,14 +110,6 @@ export function RectObjectNode({
         onTap={(event) => {
           event.cancelBubble = true
           onSelect()
-        }}
-        onDblClick={(event) => {
-          event.cancelBubble = true
-          onDblClick?.()
-        }}
-        onDblTap={(event) => {
-          event.cancelBubble = true
-          onDblClick?.()
         }}
         onDragEnd={(event) => {
           onChange({

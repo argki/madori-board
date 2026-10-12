@@ -2,7 +2,7 @@
 
 ## プロダクト
 
-間取り（平面）画像を背景に、PowerPoint 風に矩形オブジェクトを配置・編集する Web アプリ。矩形をダブルクリックすると立面編集を開く。公開は GitHub Pages（`argki/madori-board`、想定 URL: `https://argki.github.io/madori-board/`）。
+間取り（平面）画像を背景に、PowerPoint 風に矩形オブジェクトを配置・編集する Web アプリ。矩形を選んで「立面を編集」から立面を開く。公開は GitHub Pages（`argki/madori-board`、想定 URL: `https://argki.github.io/madori-board/`）。
 
 ### 必須の振る舞い
 
@@ -45,9 +45,9 @@
 | 項目             | 採用                                                       | 理由                                                                                                                                                                               |
 | ---------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ローカル実行     | **`compose.yml` + Vite 開発サーバ**（HMR）                 | API が無い静的アプリでは nginx は不要。本番相当の確認は Compose の **`preview` プロファイル**で `vite preview` を使う（公開先は GitHub Pages なので自前 nginx と揃える意味が薄い） |
-| UI               | **`bootstrap`（CSS）+ `react-bootstrap`（安定版 2.x 系）** | React 向けの定番。モーダル等を Bootstrap の JS プラグインではなく React コンポーネントで扱う。React 19 向け修正も 2.x に入っている。3.x は安定版が出てから検討する                     |
+| UI               | **`bootstrap`（CSS）+ `react-bootstrap`（安定版 2.x 系）** | React 向けの定番。モーダル等を Bootstrap の JS プラグインではなく React コンポーネントで扱う。React 19 向け修正も 2.x に入っている。3.x は安定版が出てから検討する                 |
 | 状態 + Undo/Redo | **`zustand` + `zundo`（`temporal` ミドルウェア）**         | Zustand 向け Undo の事実上の定番。履歴は `partialize` でドキュメント状態に限定し、ズーム等の一時 UI は履歴から外してよい                                                           |
-| キャンバス       | **Konva / react-konva**                                    | 矩形・Transformer・背景 Image に適合する。未導入なら Fabric へ切り替えない                                                                                                             |
+| キャンバス       | **Konva / react-konva**                                    | 矩形・Transformer・背景 Image に適合する。未導入なら Fabric へ切り替えない                                                                                                         |
 | ビルド           | **Vite + React + TypeScript**                              | 現行のフロント標準。Pages の `base: '/madori-board/'` と相性がよい                                                                                                                 |
 
 ### Compose の具体方針

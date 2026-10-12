@@ -17,7 +17,7 @@ disable-model-invocation: true
 2. store に `addObject(partial)` を追加する。`id` は `crypto.randomUUID()` 等
 3. 新規オブジェクトの `elevation` は空の初期値（例: `{ objects: [] }`）
 4. `src/features/board/` に矩形ノードコンポーネントを追加または更新する。選択・ドラッグ・Transformer を壊さない
-5. ダブルクリックで立面編集 UI を開くハンドラが object id を渡すことを確認する
+5. 選択中に「立面を編集」から立面 UI を開けることを確認する
 6. 変更後、該当ファイルだけ lint する（プロジェクトに script があれば `npm run lint`）
 
 ## やらないこと

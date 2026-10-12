@@ -67,24 +67,26 @@ export function ElevationEditorModal({
           />
         </ButtonGroup>
       </Modal.Header>
-      <Modal.Body className="d-flex flex-column gap-2 flex-grow-1 overflow-hidden p-3">
-        <DimensionPanel
-          mode="elevation"
-          object={selectedObject}
-          mmPerPixel={project.scale?.mmPerPixel}
-          showLabelField
-          onChangeSize={(size) => {
-            if (!selectedElevationObjectId) return
-            updateElevationObject(selectedElevationObjectId, size)
-          }}
-          onChangeLabel={(label) => {
-            if (!selectedElevationObjectId) return
-            updateElevationObject(selectedElevationObjectId, {
-              label: label || undefined,
-            })
-          }}
-        />
+      <Modal.Body className="board-workspace d-flex flex-column flex-grow-1 overflow-hidden p-3">
         <ElevationStage />
+        <div className="dimension-overlay">
+          <DimensionPanel
+            mode="elevation"
+            object={selectedObject}
+            mmPerPixel={project.scale?.mmPerPixel}
+            showLabelField
+            onChangeSize={(size) => {
+              if (!selectedElevationObjectId) return
+              updateElevationObject(selectedElevationObjectId, size)
+            }}
+            onChangeLabel={(label) => {
+              if (!selectedElevationObjectId) return
+              updateElevationObject(selectedElevationObjectId, {
+                label: label || undefined,
+              })
+            }}
+          />
+        </div>
       </Modal.Body>
     </Modal>
   )

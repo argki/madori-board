@@ -6,14 +6,12 @@ type BoardStageProps = {
   calibrating?: boolean
   draftPoints?: Point[]
   onCalibrationClick?: (point: Point) => void
-  onOpenElevation?: (objectId: string) => void
 }
 
 export function BoardStage({
   calibrating = false,
   draftPoints = [],
   onCalibrationClick,
-  onOpenElevation,
 }: BoardStageProps) {
   const background = useBoardStore((s) => s.project.background)
   const scale = useBoardStore((s) => s.project.scale)
@@ -39,7 +37,6 @@ export function BoardStage({
         const id = useBoardStore.getState().selectedId
         if (id) removeObject(id)
       }}
-      onObjectDblClick={onOpenElevation}
     />
   )
 }
