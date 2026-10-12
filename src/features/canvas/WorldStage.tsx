@@ -7,6 +7,7 @@ import { snapAxisAligned, type Point } from '../../lib/scale'
 import { useHtmlImage } from '../../lib/useHtmlImage'
 import type { ScaleCalibration } from '../../types/project'
 import { ReferenceLine } from '../board/ReferenceLine'
+import { BoundsRuler, boundsRulerContentPad } from '../elevation/BoundsRuler'
 import {
   RectObjectNode,
   type RectAppearance,
@@ -33,6 +34,8 @@ export type WorldStageProps = {
    * 指定時はこの矩形を縁として描画し、emptyContentSize の既定にも使う。
    */
   boundsFrame?: Size
+  /** 外形枠の内側四方に mm 目盛を描く（縮尺があるとき） */
+  showBoundsRuler?: boolean
   objects: RectObject[]
   selectedId: string | null
   scaleCalibration?: ScaleCalibration
@@ -100,6 +103,7 @@ export function WorldStage({
   emptyContentSize,
   frameClassName = '',
   boundsFrame,
+  showBoundsRuler = false,
   objects,
   selectedId,
   scaleCalibration,
@@ -234,26 +238,41 @@ export function WorldStage({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [calibrating, selectedId, onDeleteSelected])
 
+  const rulerPad =
+    showBoundsRuler && boundsFrame ? boundsRulerContentPad(boundsFrame) : 0
   const fallbackEmpty = boundsFrame ?? emptyContentSize
   const contentSize: Size = backgroundImage
     ? {
         width: backgroundImage.naturalWidth,
         height: backgroundImage.naturalHeight,
       }
-    : (fallbackEmpty ?? size)
+    : boundsFrame
+      ? {
+          width: boundsFrame.width + rulerPad * 2,
+          height: boundsFrame.height + rulerPad * 2,
+        }
+      : (fallbackEmpty ?? size)
 
   const contentKey = backgroundImage
     ? `bg:${backgroundDataUrl ?? ''}:${backgroundImage.naturalWidth}x${backgroundImage.naturalHeight}`
-    : fallbackEmpty
-      ? `empty:${fallbackEmpty.width}x${fallbackEmpty.height}`
-      : 'empty-stage'
+    : boundsFrame
+      ? `frame:${boundsFrame.width}x${boundsFrame.height}:ruler${rulerPad}`
+      : fallbackEmpty
+        ? `empty:${fallbackEmpty.width}x${fallbackEmpty.height}`
+        : 'empty-stage'
 
   useEffect(() => {
     if (size.width <= 0 || contentSize.width <= 0) return
     if (fittedContentKeyRef.current === contentKey) return
-    setView(fitContentTransform(size, contentSize))
+    const fitted = fitContentTransform(size, contentSize)
+    // 枠は (0,0) のまま、外側目盛用の余白ぶん表示をずらす
+    setView({
+      scale: fitted.scale,
+      x: fitted.x + rulerPad * fitted.scale,
+      y: fitted.y + rulerPad * fitted.scale,
+    })
     fittedContentKeyRef.current = contentKey
-  }, [contentKey, size, contentSize])
+  }, [contentKey, size, contentSize, rulerPad])
 
   const pointerInContent = (): Point | null => {
     const layer = contentLayerRef.current
@@ -462,6 +481,16 @@ export function WorldStage({
               strokeScaleEnabled={false}
               dash={[10, 6]}
               listening={false}
+            />
+          ) : null}
+          {showBoundsRuler &&
+          boundsFrame &&
+          scaleCalibration?.mmPerPixel !== undefined ? (
+            <BoundsRuler
+              width={boundsFrame.width}
+              height={boundsFrame.height}
+              mmPerPixel={scaleCalibration.mmPerPixel}
+              viewScale={view.scale}
             />
           ) : null}
           {objects.map((object) => (

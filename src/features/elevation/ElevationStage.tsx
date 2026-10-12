@@ -9,6 +9,7 @@ export function ElevationStage() {
         null)
       : null,
   )
+  const scale = useBoardStore((s) => s.project.scale)
   const selectedElevationObjectId = useBoardStore(
     (s) => s.selectedElevationObjectId,
   )
@@ -36,6 +37,8 @@ export function ElevationStage() {
     <WorldStage
       ariaLabel="立面ボード"
       boundsFrame={boundsFrame}
+      showBoundsRuler
+      scaleCalibration={scale}
       frameClassName="bg-light"
       objects={boardObject.elevation.objects}
       selectedId={selectedElevationObjectId}
