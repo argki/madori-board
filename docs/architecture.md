@@ -22,8 +22,8 @@ flowchart LR
 ## 縮尺
 
 - 平面・立面それぞれ（またはプロジェクト共通）に、基準線校正で `mmPerPixel` を持つ
-- オブジェクトの `width` / `height` は論理ピクセルと mm の両方を扱えるようにし、表示・入力は mm を優先
-- 校正 UI: 2 点指定 + 実寸入力。補助プリセットは AGENTS.md の調査メモに従う
+- オブジェクトの `width` / `height` は論理ピクセルと mm の両方を扱えるようにし、表示・入力は mm を優先する
+- 校正 UI は 2 点指定 + 実寸入力。補助プリセットは AGENTS.md の調査メモに従う
 
 ## 実行環境
 
@@ -35,9 +35,14 @@ flowchart LR
 ## UI / 状態
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
-- ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定（`partialize`）
-- 導入済み: Vite + React + TS、Compose、型、store（Undo/Redo）、平面キャンバス、間取りデータ（JSON）の download / upload、平面の縮尺校正（基準線 + 実寸 mm）と選択矩形の名称・mm 寸法入力、立面（平面矩形のダブルクリックでモーダル。背景なし・校正なし。矩形配置。寸法は平面の縮尺を使用。Undo はナビ共通で、立面開閉も履歴に含めモーダルと連動）、GitHub Pages 用 Actions（`main` push で `dist/` をデプロイ。リポジトリ Settings → Pages → Source は GitHub Actions）
-- 未実装: なし（必須振る舞いの土台は揃った。以降は改善・拡張）
+- ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定する（`partialize`）
+- 導入済み:
+  - Vite + React + TS、Compose、型、store（Undo/Redo）
+  - 平面キャンバス、間取りデータ（JSON）の download / upload
+  - 平面の縮尺校正（基準線 + 実寸 mm）と選択矩形の名称・mm 寸法入力
+  - 立面（平面矩形のダブルクリックでモーダル。背景なし・校正なし。矩形配置。寸法は平面の縮尺を使う。Undo はナビ共通で、立面開閉も履歴に含めモーダルと連動する）
+  - GitHub Pages 用 Actions（`main` push で `dist/` をデプロイ。リポジトリ Settings → Pages → Source は GitHub Actions）
+- 未実装（必須）: なし。以降は改善・拡張
 
 ## 間取りデータファイル
 
