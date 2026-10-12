@@ -42,13 +42,13 @@
 
 ### 採用決定（調査済み）
 
-| 項目 | 採用 | 理由 |
-|------|------|------|
-| ローカル実行 | **`compose.yml` + Vite 開発サーバ**（HMR） | API が無い静的アプリでは nginx は不要。本番相当の確認は Compose の **`preview` プロファイル**で `vite preview` を使う（公開先は GitHub Pages なので自前 nginx と揃える意味が薄い） |
-| UI | **`bootstrap`（CSS）+ `react-bootstrap`（安定版 2.x 系）** | React 向けの定番。モーダル等を Bootstrap の JS プラグインではなく React コンポーネントで扱う。React 19 向け修正も 2.x に入っている。3.x は安定版が出てから検討 |
-| 状態 + Undo/Redo | **`zustand` + `zundo`（`temporal` ミドルウェア）** | Zustand 向け Undo の事実上の定番。履歴は `partialize` でドキュメント状態に限定し、ズーム等の一時 UI は履歴から外してよい |
-| キャンバス | **Konva / react-konva** | 矩形・Transformer・背景 Image に適合。未導入なら Fabric へ切り替えない |
-| ビルド | **Vite + React + TypeScript** | 現行のフロント標準。Pages の `base: '/madori-board/'` と相性がよい |
+| 項目             | 採用                                                       | 理由                                                                                                                                                                               |
+| ---------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ローカル実行     | **`compose.yml` + Vite 開発サーバ**（HMR）                 | API が無い静的アプリでは nginx は不要。本番相当の確認は Compose の **`preview` プロファイル**で `vite preview` を使う（公開先は GitHub Pages なので自前 nginx と揃える意味が薄い） |
+| UI               | **`bootstrap`（CSS）+ `react-bootstrap`（安定版 2.x 系）** | React 向けの定番。モーダル等を Bootstrap の JS プラグインではなく React コンポーネントで扱う。React 19 向け修正も 2.x に入っている。3.x は安定版が出てから検討                     |
+| 状態 + Undo/Redo | **`zustand` + `zundo`（`temporal` ミドルウェア）**         | Zustand 向け Undo の事実上の定番。履歴は `partialize` でドキュメント状態に限定し、ズーム等の一時 UI は履歴から外してよい                                                           |
+| キャンバス       | **Konva / react-konva**                                    | 矩形・Transformer・背景 Image に適合。未導入なら Fabric へ切り替えない                                                                                                             |
+| ビルド           | **Vite + React + TypeScript**                              | 現行のフロント標準。Pages の `base: '/madori-board/'` と相性がよい                                                                                                                 |
 
 ### Compose の具体方針
 
@@ -62,11 +62,11 @@
 
 コミットする変更は、**必ずフォーマットしたうえで**コミットする。フォーマットは **ホストの `node_modules` ではなく Docker（Compose）経由**で行う（実行環境を揃えるため）。
 
-| 用途 | コマンド（想定） |
-|------|------------------|
-| リポジトリ全体を整形（コミット前） | `docker compose run --rm web npm run format` |
-| `web` が起動中なら同じ処理 | `docker compose exec -T web npm run format` |
-| 整形結果の確認のみ | `docker compose run --rm web npm run format:check` |
+| 用途                               | コマンド（想定）                                   |
+| ---------------------------------- | -------------------------------------------------- |
+| リポジトリ全体を整形（コミット前） | `docker compose run --rm web npm run format`       |
+| `web` が起動中なら同じ処理         | `docker compose exec -T web npm run format`        |
+| 整形結果の確認のみ                 | `docker compose run --rm web npm run format:check` |
 
 - `package.json` に `format` / `format:check` を用意する（Prettier。導入時に最新安定版）
 - Agent がコミットする場合も、**先に上記の format を成功させてから** `git commit` する
@@ -74,10 +74,10 @@
 
 ### 前提・制約
 
-| 項目 | 方針 |
-|------|------|
-| 公開 | 静的フロントのみ（初期は API なし）。GitHub Pages |
-| データ | JSON 等の **ファイル download / upload** のみ。ブラウザ永続化はしない |
+| 項目     | 方針                                                                                                  |
+| -------- | ----------------------------------------------------------------------------------------------------- |
+| 公開     | 静的フロントのみ（初期は API なし）。GitHub Pages                                                     |
+| データ   | JSON 等の **ファイル download / upload** のみ。ブラウザ永続化はしない                                 |
 | スタイル | Bootstrap のユーティリティ・コンポーネント優先。カスタム CSS は最小限。独自デザインシステムは作らない |
 
 ### リポジトリ構成（目標）
@@ -100,14 +100,13 @@ src/lib/                 # ファイル I/O、座標・縮尺変換
 - 仕様の正本は `docs/`。ルール（`.cursor/rules`）は要約と参照のみ
 - Cursor の使い方は `@docs/cursor/README.md` を参照
 
-
 ## Cursor 設定の置き場
 
-| 種類 | パス |
-|------|------|
-| Project Rules | `.cursor/rules/*.mdc` |
-| Project Skills | `.cursor/skills/*/SKILL.md` |
-| Commands | `.cursor/commands/*.md`（例: `/suggest-commit-message`） |
-| Hooks | `.cursor/hooks.json`, `.cursor/hooks/*` |
-| 使い方ドキュメント | `docs/cursor/README.md` |
-| コミットメッセージ規約 | `docs/commit-message.md` |
+| 種類                   | パス                                                     |
+| ---------------------- | -------------------------------------------------------- |
+| Project Rules          | `.cursor/rules/*.mdc`                                    |
+| Project Skills         | `.cursor/skills/*/SKILL.md`                              |
+| Commands               | `.cursor/commands/*.md`（例: `/suggest-commit-message`） |
+| Hooks                  | `.cursor/hooks.json`, `.cursor/hooks/*`                  |
+| 使い方ドキュメント     | `docs/cursor/README.md`                                  |
+| コミットメッセージ規約 | `docs/commit-message.md`                                 |

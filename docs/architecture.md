@@ -32,11 +32,11 @@ flowchart LR
 - 公開: GitHub Pages（CI で `npm run build` → `dist/`）
 - フォーマット: コミット前に `docker compose run --rm web npm run format`（起動中は `exec -T`）。ホスト直の Prettier は使わない。詳細は `@AGENTS.md`
 
-
 ## UI / 状態
 
 - ツールバー・モーダル・フォーム: `react-bootstrap` + Bootstrap 5 CSS。Bootstrap の JS プラグインは使わない
 - ドキュメント状態: Zustand。Undo/Redo は zundo の `temporal`。履歴対象はオブジェクト・縮尺・背景などドキュメント本体に限定（`partialize`）
+- 導入済みの土台: Vite + React + TS、Compose（`web` / `preview`）、型（`src/types`）、store、ツールバー骨組み。キャンバス本体は未実装
 
 ## 非機能
 
@@ -45,4 +45,3 @@ flowchart LR
 
 詳細型: `@docs/domain-model.md`  
 採用理由の要約: `@AGENTS.md` の「採用決定」
-
